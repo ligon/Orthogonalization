@@ -40,15 +40,15 @@ def generate_A((m,n),method='range'):
         A = A + 1000
     elif method=='random':
         # create matrix A with random numbers
-        A = numpy.zeros( (m,n) )
-        for k in range(0,m) :
+        A = numpy.zeros( (m,n) ) 
+	for k in range(0,m) :
             for j in range(0,n) :
                 A[k,j] = round(random.uniform(1,100))
 
     return A
 
 
-def main(qr=qrfact.qr_mgs,(m,n)=(5,3)):
+def main(qr=qrfact.qr_mgs,(m,n)=(5,3),alpha=0.5):
     """
     Test decomposition of a matrix (2-dimensional numpy array) A.
     """
@@ -58,23 +58,11 @@ def main(qr=qrfact.qr_mgs,(m,n)=(5,3)):
     if max(m,n)<10:
         print "A = \n", A
 
-    Q,R = qr(A)[:2]  # Some QR routines return a third permutation P solving AP=QR.
-
-    # repeat QR factorization to ensure Q is orthogonal, just testing
-    # for count in range(0,0) :
-    Q1,R1 = qr(Q)
 
     try:
-        e=norm(Q1-Q)
-        assert(e<0.001)
-    except AssertionError:
-        print "Orthogonality error in Q: %g." % e
-        
-    try:
-        e=norm(R-numpy.dot(R1,R))
-        assert(e<0.001)
-    except AssertionError:
-        print "Error in R: %g." % e
+        Q,R = qr(A)[:2]  # Some QR routines return a third permutation P solving AP=QR.
+    except TypeError:
+        Q,R = qr(A,alpha)[:2]  # Some QR routines return a third permutation P solving AP=QR.
 
 
     # display Q, R, and confirm A is correct
@@ -100,5 +88,5 @@ def main(qr=qrfact.qr_mgs,(m,n)=(5,3)):
     '''
 
 if __name__=='__main__':
-    main()
+    main(qr=qrfact.qri_mgs_piv)
 
