@@ -129,7 +129,7 @@ def qri_mgs_piv( Q, alpha ):
     P = numpy.eye( n )
 
     for k in range( 0, n ) :
-        print "column", k
+        #print "column", k
 
         # step 0
         for j in range ( k, n ) :
