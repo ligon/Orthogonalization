@@ -114,14 +114,14 @@ def qrtest( A ):
     
 
 
-def qri_mgs_piv( Q, alpha ):
+def qri_mgs_piv( A, alpha=0.5 ):
     """QR decomposition of A, with column pivoting; returns Q,R,P.
 
     Takes an optional tolerance parameter alpha.
     
     Iterated MGS with column pivoting (Dax 1999)."""
     
-    Q = numpy.array(Q, dtype=float)
+    Q = numpy.array(A, dtype=float)
     m,n = Q.shape
     R = numpy.zeros( (n,n) )
     Qnorms = numpy.zeros( n )
@@ -129,8 +129,6 @@ def qri_mgs_piv( Q, alpha ):
     P = numpy.eye( n )
 
     for k in range( 0, n ) :
-        print "column", k
-
         # step 0
         for j in range ( k, n ) :
             Qnorms[j] = numpy.linalg.norm( Q[:,j] )
