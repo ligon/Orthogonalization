@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
+import sys
 import math
 import numpy
 from numpy.linalg import norm
 import random
 
 import qrfact
+import leastsquares
+import rank
 
 
 #define a few functions we might want
@@ -37,18 +40,18 @@ def generate_A((m,n),method='range'):
     if method=='range':
         # create matrix A with range of numbers, to test MGS
         A = numpy.arange(m*n).reshape(m,n)
-        A = A + 1000
+        A = A + 10
     elif method=='random':
         # create matrix A with random numbers
-        A = numpy.zeros( (m,n) )
-        for k in range(0,m) :
+        A = numpy.zeros( (m,n) ) 
+	for k in range(0,m) :
             for j in range(0,n) :
                 A[k,j] = round(random.uniform(1,100))
 
     return A
 
 
-def main(qr=qrfact.qr_mgs,(m,n)=(5,3)):
+def main(qr=qrfact.qr_mgs,(m,n)=(5,3),alpha=0.5):
     """
     Test decomposition of a matrix (2-dimensional numpy array) A.
     """
@@ -58,23 +61,11 @@ def main(qr=qrfact.qr_mgs,(m,n)=(5,3)):
     if max(m,n)<10:
         print "A = \n", A
 
-    Q,R = qr(A)[:2]  # Some QR routines return a third permutation P solving AP=QR.
-
-    # repeat QR factorization to ensure Q is orthogonal, just testing
-    # for count in range(0,0) :
-    Q1,R1 = qr(Q)
 
     try:
-        e=norm(Q1-Q)
-        assert(e<0.001)
-    except AssertionError:
-        print "Orthogonality error in Q: %g." % e
-        
-    try:
-        e=norm(R-numpy.dot(R1,R))
-        assert(e<0.001)
-    except AssertionError:
-        print "Error in R: %g." % e
+        Q,R = qr(A)[:2]  # Some QR routines return a third permutation P solving AP=QR.
+    except TypeError:
+        Q,R = qr(A,alpha)[:2]  # Some QR routines return a third permutation P solving AP=QR.
 
 
     # display Q, R, and confirm A is correct
@@ -99,6 +90,55 @@ def main(qr=qrfact.qr_mgs,(m,n)=(5,3)):
     test_ortho(Q)
     '''
 
+def test_ls( qr=qrfact.qri_mgs_piv, (m,n)=(5,5), alpha=0.5 ) :
+    """
+    Test least squares routine
+    """
+
+    A = generate_A( (m,n), 'random' )
+    b = generate_A( (m,1), 'random' )
+
+    if max(m,n) < 10:
+        print "A = \n", A
+        print "b = \n", b
+
+    x,AP = leastsquares.leastsquares( A, b, qr=qr, alpha=alpha )
+    
+    print "AP = \n", AP
+    print "x = ", x
+    print "APx = \n", numpy.dot( AP, x )
+
+
+def test_rank((m,n)=(4,4), alpha=0.5 ) :
+    """
+    Test rank finding routine
+    """
+
+    A = generate_A( (m,n) )
+    #err = generate_A( (1,m), 'random' )
+    
+    #A[:,n-1] = A[:,0] + 0.1 * A[:,1]
+    #A[:,n-1] = A[:,0] + 0.000001 * err
+    print "A = \n", A
+
+    therank,R = rank.rank(A)
+    
+    print "R = \n", R
+    print "rank = ", therank
+    
+   
+
 if __name__=='__main__':
-    main()
+    arg = sys.argv[1:]
+
+    if (len(arg) > 0) and (arg[0] == 'ls') :
+        print "doing leastsquares test"
+        test_ls()
+    if (len(arg) > 0) and (arg[0] == 'rank') :
+        print "doing rank test"
+        test_rank()
+    else :
+        print "doing main loop"
+        main(qr=qrfact.qri_mgs_piv)
+
 
