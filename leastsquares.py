@@ -61,8 +61,10 @@ def leastsquares(A,b,qr=qrfact.qri_mgs_piv,alpha=0.5):
             x[i] = x[i] - R[i,j] * x[j]
         x[i] = x[i] / R[i,i]
         #print x
+
+    #need to permute x according to permutation matrix P
     
-    return x, AP
+    return numpy.dot( P, x )
     
 
 
