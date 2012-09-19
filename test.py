@@ -90,7 +90,7 @@ def main(qr=qrfact.qr_mgs,(m,n)=(5,3),alpha=0.5):
     test_ortho(Q)
     '''
 
-def test_ls( qr=qrfact.qri_mgs_piv, (m,n)=(5,5), alpha=0.5 ) :
+def test_ls( qr=qrfact.qri_mgs_piv, (m,n)=(8,4), alpha=0.5 ) :
     """
     Test least squares routine
     """
@@ -102,19 +102,21 @@ def test_ls( qr=qrfact.qri_mgs_piv, (m,n)=(5,5), alpha=0.5 ) :
         print "A = \n", A
         print "b = \n", b
 
-    x,AP = leastsquares.leastsquares( A, b, qr=qr, alpha=alpha )
+    x = leastsquares.leastsquares( A, b, qr=qr, alpha=alpha )
     
-    print "AP = \n", AP
     print "x = ", x
-    print "APx = \n", numpy.dot( AP, x )
+    print "Check Ax = \n", numpy.dot( A, x )
+
+    print "built in least squares: \n", numpy.linalg.lstsq(A, b)[0]
 
 
-def test_rank((m,n)=(4,4), alpha=0.5 ) :
+def test_rank((m,n)=(8,4), alpha=0.5 ) :
     """
     Test rank finding routine
     """
 
     A = generate_A( (m,n) )
+    #A = generate_A( (m,n), 'random' )
     #err = generate_A( (1,m), 'random' )
     
     #A[:,n-1] = A[:,0] + 0.1 * A[:,1]
@@ -134,7 +136,7 @@ if __name__=='__main__':
     if (len(arg) > 0) and (arg[0] == 'ls') :
         print "doing leastsquares test"
         test_ls()
-    if (len(arg) > 0) and (arg[0] == 'rank') :
+    elif (len(arg) > 0) and (arg[0] == 'rank') :
         print "doing rank test"
         test_rank()
     else :
